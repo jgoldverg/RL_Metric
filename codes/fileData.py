@@ -90,7 +90,7 @@ class ReadFile:
     each group (key) of logs and max throughput for that group
     """
     def return_map_for_tuple_to_throughput(self):
-      return self.map_for_tuple_to_throughput
+        return self.map_for_tuple_to_throughput
 
     """
     get_grouped_df() returns a generic.DataFrameGroupBy object which needs to be accessed
@@ -105,4 +105,53 @@ class ReadFile:
     def return_group_specific_test_logs(self,group_key):
         return self.map_for_group_key_to_test_logs[group_key]
 
+
+
+class environmentGroup:
+    def __init__(self,
+                filedata_grouped_df,groupKey):
+                self.logs=[]
+                self.grouped_df=filedata_grouped_df
+                self.a_group=self.grouped_df.get_group(groupKey)
+                self.group_max_throughput=self.a_group['TotalAvgTput'].max()
+                self.number_of_rows=self.a_group.shape[0]
+                selected_no_test_rows=math.ceil(self.number_of_rows*1)  #30% is test data
+                a_group_test=self.a_group.sample(n=selected_no_test_rows)
+                for index, row in a_group_test.iterrows():
+                    self.logs.append(Log(index,[row['FileCount'], row['AvgFileSize'],row['BufSize'],row['Bandwidth'],row['AvgRtt'],row['CC_Level'],row['P_Level'],row['PP_Level'],row['numActiveCores'],row['frequency'],row['TotalAvgTput'],row['TotalEnergy'],row['DataTransferEnergy']]))
+                self.group_from_grouped_df=self.a_group.groupby(['CC_Level','P_Level','PP_Level','numActiveCores','frequency'])
+                self.grouping_list_name=['CC_Level','P_Level','PP_Level','numActiveCores','frequency']
+                self.action_list=[]
+                self.state_list=[]
+                for key in self.group_from_grouped_df.groups.keys():
+                    self.action_list.append(key)
+                    self.state_list.append([groupKey[0],groupKey[1],groupKey[2],groupKey[3],groupKey[4],key[0],key[1],key[2],key[3],key[4]])
+
+    def group_maximum_throughput(self):
+        return self.group_max_throughput
+
+    def total_number_of_logs(self):
+        return self.number_of_rows
+
+    def return_a_group(self):
+        return self.a_group
+
+    def return_group_from_grouped_df(self):
+        return self.group_from_grouped_df
+
+    def return_grouping_list_name(self):
+        return self.grouping_list_name
+
+    def return_action_list(self):
+        return self.action_list
+
+    def return_state_list(self):
+        return self.state_list
+
+    def retun_group_key_throughput(self,search_key):
+        result_throughput=[]
+        log_group=self.group_from_grouped_df.get_group(search_key)
+        for index, row in log_group.iterrows():
+            result_throughput.append(row['TotalAvgTput'])
+        return result_throughput
 

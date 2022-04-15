@@ -26,10 +26,21 @@ print("There are total %d number of groups based on FileCount, AvgFileSize,BufSi
 total_test_log=0
 for key in filedata_grouped_df.groups.keys():
     print(f"group key is {key}")
-    key_specific_test_logs=fileData_chameleon.return_group_specific_test_logs(key)
-    total_test_log+=len(key_specific_test_logs)
-    print(f"key_specific_test_logs {len(key_specific_test_logs)}")
-print(f"Total Test logs {total_test_log}")
-print(f"Total logs {len(fileData_chameleon.logs)}")
+#     key_specific_test_logs=fileData_chameleon.return_group_specific_test_logs(key)
+#     total_test_log+=len(key_specific_test_logs)
+#     print(f"key_specific_test_logs {len(key_specific_test_logs)}")
+# print(f"Total Test logs {total_test_log}")
+# print(f"Total logs {len(fileData_chameleon.logs)}")
 
 
+selectedgroup=environmentGroup(fileData_chameleon.get_grouped_df(),key)
+print(type(selectedgroup.return_a_group()))
+a_group=selectedgroup.return_a_group()
+print(a_group)
+
+group_from_grouped_df=selectedgroup.return_group_from_grouped_df()
+total_key=0
+for key in group_from_grouped_df.groups.keys():
+    print(f"group key is {key}")
+    total_key+=1
+print(f"total number of keys are {total_key}")
