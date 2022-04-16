@@ -105,7 +105,11 @@ class ReadFile:
     def return_group_specific_test_logs(self,group_key):
         return self.map_for_group_key_to_test_logs[group_key]
 
-
+"""
+environmentGroup Class to build the gym environment on the history log
+input: filedata_grouped_df a pandas.core.groupby.generic.DataFrameGroupBy object
+       groupKey a tuple of 'FileCount', 'AvgFileSize','BufSize', 'Bandwidth', 'AvgRtt's
+"""
 
 class environmentGroup:
     def __init__(self,
@@ -119,35 +123,69 @@ class environmentGroup:
                 a_group_test=self.a_group.sample(n=selected_no_test_rows)
                 for index, row in a_group_test.iterrows():
                     self.logs.append(Log(index,[row['FileCount'], row['AvgFileSize'],row['BufSize'],row['Bandwidth'],row['AvgRtt'],row['CC_Level'],row['P_Level'],row['PP_Level'],row['numActiveCores'],row['frequency'],row['TotalAvgTput'],row['TotalEnergy'],row['DataTransferEnergy']]))
-                self.group_from_grouped_df=self.a_group.groupby(['CC_Level','P_Level','PP_Level','numActiveCores','frequency'])
-                self.grouping_list_name=['CC_Level','P_Level','PP_Level','numActiveCores','frequency']
+                self.group_from_grouped_df=self.a_group.groupby(['CC_Level','P_Level','PP_Level'])#,'numActiveCores','frequency'
+                self.grouping_list_name=['CC_Level','P_Level','PP_Level']
                 self.action_list=[]
                 self.state_list=[]
                 for key in self.group_from_grouped_df.groups.keys():
                     self.action_list.append(key)
-                    self.state_list.append([groupKey[0],groupKey[1],groupKey[2],groupKey[3],groupKey[4],key[0],key[1],key[2],key[3],key[4]])
+                    self.state_list.append([groupKey[0],groupKey[1],groupKey[2],groupKey[3],groupKey[4],key[0],key[1],key[2]]) #,key[3],key[4]
+    """
+    input:
+    output:provides the maximum throughput for the class groupkey
+    """
 
     def group_maximum_throughput(self):
         return self.group_max_throughput
 
+    """
+    input:
+    output:provides the total number of logs for the class groupkey
+    """
     def total_number_of_logs(self):
         return self.number_of_rows
+    """
+    input:
+    output:provides the total dataframe for the class groupkey
+    """
 
     def return_a_group(self):
         return self.a_group
 
+    """
+    input:
+    output:provides the group of groups (pp,p,cc) for the class groupkey
+    """
+
     def return_group_from_grouped_df(self):
         return self.group_from_grouped_df
+    """
+    input:
+    output:provides the group of groups (pp,p,cc) name for the class groupkey
+    """
 
     def return_grouping_list_name(self):
         return self.grouping_list_name
 
+    """
+    input:
+    output:provides the action list  for the class groupkey
+    """
     def return_action_list(self):
         return self.action_list
 
+    """
+    input:
+    output:provides the state list  for the class groupkey
+    """
     def return_state_list(self):
         return self.state_list
 
+    """
+    input: takes a tuple of action key ('CC_Level','P_Level','PP_Level')
+    output:provides the list of all the throughputs for the class groupkey and
+           action key ('CC_Level','P_Level','PP_Level')
+    """
     def retun_group_key_throughput(self,search_key):
         result_throughput=[]
         log_group=self.group_from_grouped_df.get_group(search_key)
