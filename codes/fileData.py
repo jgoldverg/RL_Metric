@@ -186,7 +186,7 @@ class environmentGroup:
     output:provides the list of all the throughputs for the class groupkey and
            action key ('CC_Level','P_Level','PP_Level')
     """
-    def retun_group_key_throughput(self,search_key):
+    def return_group_key_throughput(self,search_key):
         result_throughput=[]
         log_group=self.group_from_grouped_df.get_group(search_key)
         for index, row in log_group.iterrows():
