@@ -28,6 +28,7 @@ class NetEnvironment(gym.Env):
         self.b = THRUPUT_PENALTY
         self.prev_throughput = -1.
         self.current_observation = self.states[0]
+
         
     def reset(self):
         self.time = 0
@@ -36,7 +37,8 @@ class NetEnvironment(gym.Env):
         return self.current_observation
     
     def step(self, action):
-        action = tuple(action)
+        action = self.actions[action]
+        # action = tuple(action)
         # get throughputs
         throughputs = self.environment_group.return_group_key_throughput(action)
         cur_throughput = random.choice(throughputs)
