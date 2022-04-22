@@ -19,22 +19,22 @@ class NetEnvironment(gym.Env):
         self.states = environment_group.return_state_list()
         self.actions = environment_group.return_action_list()
         self.max_throughput = environment_group.group_maximum_throughput()
-        
+        self.max_throughput_parameters=environment_group.return_group_max_throughput_parameters()
+        self.environment_group_identification=environment_group.return_group_identification()
         self.observation_space = spaces.Box(low=0, high=np.inf, shape=(8,), dtype=np.float32)
         self.action_space = spaces.Discrete(len(self.actions))
-        
         self.max_timesteps = MAX_TIMESTEPS
         self.time = 0
         self.b = THRUPUT_PENALTY
         self.prev_throughput = -1.
-        self.current_observation = self.states[0]
-
+        self.current_observation = np.asarray(self.states[0])
+        self.obs_shape=(8,)
         
     def reset(self):
         self.time = 0
         self.prev_throughput = -1
         self.current_observation = self.states[0]
-        return self.current_observation
+        return np.asarray(self.current_observation)
     
     def step(self, action):
         action = self.actions[action]
@@ -56,7 +56,7 @@ class NetEnvironment(gym.Env):
         
         info = {'time': self.time, 'max_time': self.max_timesteps}
         self.current_observation[-3:] = action
-        return self.current_observation, reward, done, info
+        return np.asarray(self.current_observation), reward, done, info
     
     def get_actions(self):
         return self.actions

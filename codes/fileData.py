@@ -106,10 +106,26 @@ class ReadFile:
         return self.map_for_group_key_to_test_logs[group_key]
 
 """
+function takes a dataframe and max throughput and returns 
+max throughput corresponding CC,P and PP level as a tuple
+"""
+
+def max_throughput_to_parameter(df, max_throughput):
+    for index, row in df.iterrows():
+        if row['TotalAvgTput']==max_throughput:
+            return (row['CC_Level'],row['P_Level'],row['PP_Level'])
+        else:
+            continue
+    
+
+    
+"""
 environmentGroup Class to build the gym environment on the history log
 input: filedata_grouped_df a pandas.core.groupby.generic.DataFrameGroupBy object
        groupKey a tuple of 'FileCount', 'AvgFileSize','BufSize', 'Bandwidth', 'AvgRtt's
 """
+
+
 
 class environmentGroup:
     def __init__(self,
@@ -119,8 +135,10 @@ class environmentGroup:
                 self.a_group=self.grouped_df.get_group(groupKey)
                 self.group_max_throughput=self.a_group['TotalAvgTput'].max()
                 self.number_of_rows=self.a_group.shape[0]
+                self.group_max_throughput_parameters=max_throughput_to_parameter(self.a_group,self.group_max_throughput)
                 selected_no_test_rows=math.ceil(self.number_of_rows*1)  #30% is test data
                 a_group_test=self.a_group.sample(n=selected_no_test_rows)
+                self.group_identification=groupKey
                 for index, row in a_group_test.iterrows():
                     self.logs.append(Log(index,[row['FileCount'], row['AvgFileSize'],row['BufSize'],row['Bandwidth'],row['AvgRtt'],row['CC_Level'],row['P_Level'],row['PP_Level'],row['numActiveCores'],row['frequency'],row['TotalAvgTput'],row['TotalEnergy'],row['DataTransferEnergy']]))
                 self.group_from_grouped_df=self.a_group.groupby(['CC_Level','P_Level','PP_Level'])#,'numActiveCores','frequency'
@@ -192,4 +210,16 @@ class environmentGroup:
         for index, row in log_group.iterrows():
             result_throughput.append(row['TotalAvgTput'])
         return result_throughput
-
+    """
+    input: 
+    output:provides the group key as tuple ('FileCount', 'AvgFileSize','BufSize', 'Bandwidth', 'AvgRtt')
+    """
+    def return_group_identification(self):
+        return self.group_identification
+    
+    """
+    input: 
+    output:provides the group max throughput corresponding CC,P and PP level as a tuple
+    """
+    def return_group_max_throughput_parameters(self):
+        return self.group_max_throughput_parameters
