@@ -29,46 +29,46 @@ class NetEnvironment(gym.Env):
         self.prev_throughput = -1.
         self.current_observation = np.asarray(self.states[0])
         self.obs_shape=(8,)
-        
+
     def reset(self):
         self.time = 0
         self.prev_throughput = -1
         self.current_observation = self.states[0]
         return np.asarray(self.current_observation)
-    
+
     def step(self, action):
         action = self.actions[action]
         # action = tuple(action)
         # get throughputs
         throughputs = self.environment_group.return_group_key_throughput(action)
         cur_throughput = random.choice(throughputs)
-        if cur_throughput < self.prev_throughput:
-            reward = self.b
-        else:
-            reward = cur_throughput / self.max_throughput
+        # if cur_throughput < self.prev_throughput:
+        #     reward = self.b
+        # else:
+        reward = cur_throughput / self.max_throughput
         self.prev_throughput = cur_throughput
-        
+
         self.time += 1
         if self.max_timesteps <= self.time:
             done = True
         else:
             done = False
-        
+
         info = {'time': self.time, 'max_time': self.max_timesteps}
         self.current_observation[-3:] = action
         return np.asarray(self.current_observation), reward, done, info
-    
+
     def get_actions(self):
         return self.actions
-    
+
     def get_states(self):
         return self.states
-    
+
     def get_max_throughput(self):
         return self.max_throughput
-    
+
     def get_time(self):
         return self.time
-        
+
     def render(self):
         pass
