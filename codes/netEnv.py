@@ -182,6 +182,9 @@ class GroupNetWrapper(gym.Env):
             self.env_list.reverse()
             self.probabilities.append(self.r * self.p)
             self.r *= self.p
+            slice_list = self.env_list[1:]
+            np.random.shuffle(slice_list)
+            self.env_list[1:] = slice_list
     
     def choose_env(self):
         if len(self.env_list) == 0:
@@ -196,9 +199,10 @@ class GroupNetWrapper(gym.Env):
         self.environment_group_identification=self.cur_env.environment_group_identification
         return self.cur_env
         
-    def step(self, action):
+    def step(self, action, change=True):
         next_ob, reward, done, info = self.cur_env.step(action)
-        self.cur_env = self.choose_env()
+        if change:
+            self.cur_env = self.choose_env()
         return next_ob, reward, done, {'rotation': np.asarray(self.cur_env.current_observation)}
 
     def render(self):
@@ -310,7 +314,7 @@ class DQNAgent_glob():
         self.replay_buffer.append(transition)
         obs=new_obs
         self.episode_reward+=rew
-        if done:
+        if (step % 100 == 0):
             obs=self.env.reset()
             self.rew_buffer.append(self.episode_reward)
             self.reward_per_episode.append(self.episode_reward)
@@ -375,7 +379,7 @@ class DQNAgent_glob():
         self.replay_buffer.append(transition)
         obs=info['rotation']
         self.episode_reward+=rew
-        if done:
+        if (step % 100 == 0):
             obs=self.env.reset()
             self.rew_buffer.append(self.episode_reward)
             self.reward_per_episode.append(self.episode_reward)
@@ -464,7 +468,7 @@ class DQNAgent_glob():
   def plot_validation_curve(self):
     reward_epsilon_values=[]
     reward_epsilon_values.append(self.reward_per_episode_validation)
-    reward_epsilon_values.append(self.reward_per_episode_validation)
+    # reward_epsilon_values.append(self.reward_per_episode_validation)
     labels = ["reward", "reward"]
     fig, axs = plt.subplots(2, sharex=True)
     fig.suptitle('reward-episodes & reward-episodes graph DQN for 10 episode of validation for the group')
